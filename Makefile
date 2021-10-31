@@ -18,9 +18,6 @@ docker-push:
 	docker push $(image_name)
 
 #deployment 
-update-yaml:
-	sed <image_name>/$(image_name) docker-compose.yaml
-
 deploy:
 	docker-compose -f docker-compose.yaml up -d
 
