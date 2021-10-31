@@ -7,7 +7,7 @@ make docker-Build
 make docker-push
 
 Deployment automation
-1. run docker-compose -f app.yaml
+1. run  docker-compose.yaml
 
 changes on the source:
 ==Makefile==
