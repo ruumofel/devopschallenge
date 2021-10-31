@@ -21,7 +21,7 @@ create makefile for automation
   COPY composer.jason /var/www to COPY ./app/ /var/www
   DO --> COPY
   locales add \
-  useradd www www to www www2
+
 
 ==deployment==
 create app.yaml 

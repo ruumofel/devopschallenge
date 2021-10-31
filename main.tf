@@ -17,8 +17,8 @@ provider "aws" {
 resource "aws_instance" "app_iprice" {
   ami             = "ami-073998ba87e205747"
   instance_type   = "t2.micro"
-  key_name        = "halo"
-  vpc_security_group_ids = ["${aws_security_group.test.id}"]
+  key_name        = "mykey"
+  vpc_security_group_ids = ["${aws_security_group.devopschallenge.id}"]
   tags = {
     Name = "ExampleAppServerInstance"
   }
@@ -33,7 +33,7 @@ resource "aws_instance" "app_iprice" {
   connection {
     type     = "ssh"
     user     = "ec2-user"
-    private_key = "${file("halo.pem")}"
+    private_key = tls_private_key.devopskey.private_key_pem
     host = self.public_ip
   }
 
@@ -51,9 +51,22 @@ resource "aws_instance" "app_iprice" {
     ]
   }
 }
-
-  resource "aws_security_group" "test" {
-  name        = "test"
+resource "tls_private_key" "devopskey" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+resource "aws_key_pair" "generatekey" {
+  key_name = "mykey"
+  public_key = tls_private_key.devopskey.public_key_openssh
+  provisioner "local-exec" {
+    command = <<EOF
+    echo '${tls_private_key.devopskey.private_key_pem}' > mykey.pem
+    chmod 400 ./mykey.pem
+    EOF
+  }  
+}
+  resource "aws_security_group" "devopschallenge" {
+  name        = "devopschallenge"
   description = "Allow ssh  inbound traffic"
 
   ingress {
@@ -66,6 +79,13 @@ resource "aws_instance" "app_iprice" {
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
